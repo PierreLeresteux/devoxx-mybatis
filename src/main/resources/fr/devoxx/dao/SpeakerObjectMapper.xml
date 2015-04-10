@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="fr.devoxx.dao.SpeakerObjectMapper">
+
+    <resultMap id="speaker" type="fr.devoxx.dto.Speaker">
+        <id property="id" column="id"/>
+        <association property="talk" column="id" select="getTalks"/>
+    </resultMap>
+
+    <select id="getTalks" resultType="fr.devoxx.dto.Talk">
+        SELECT *
+        FROM talk
+        WHERE id_speaker=#{id}
+    </select>
+    <select id="getSpeakers" resultMap="speaker">
+        SELECT
+        s.*,
+        e.job as "currentJob.job",
+        c.nom as "currentJob.company.nom",
+        c.adresse as "currentJob.company.adresse"
+        FROM speaker s
+        LEFT JOIN emplois e on e.id_speaker=s.id
+        LEFT JOIN company c on c.id=e.id_company
+        WHERE
+        e.annee_depart IS NULL
+        <if test="id!=null">
+            AND s.id=#{id}
+        </if>
+    </select>
+</mapper>
